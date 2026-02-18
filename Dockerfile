@@ -1,11 +1,12 @@
-FROM php:8.2-cli
+FROM php:7.4-fpm
 
-# Instalar dependencias del sistema y extensiones PHP
+# Instalar dependencias
 RUN apt-get update && apt-get install -y \
     git curl zip unzip \
+    libzip-dev \
     libxml2-dev \
-    libcurl4-openssl-dev \
-    && docker-php-ext-install dom \
+    nginx \
+    && docker-php-ext-install zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer
@@ -18,5 +19,13 @@ COPY . .
 # Instalar dependencias
 RUN composer install --no-dev --optimize-autoloader
 
-# Comando por defecto (puede ser sobreescrito)
-CMD ["php", "-a"]
+# Permisos
+RUN chown -R www-data:www-data /var/www
+
+# Nginx config
+COPY nginx.conf /etc/nginx/sites-available/default
+
+EXPOSE 80
+
+# Iniciar PHP-FPM en background y Nginx en foreground
+CMD php-fpm -D && nginx -g 'daemon off;'
