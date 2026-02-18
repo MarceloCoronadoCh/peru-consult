@@ -5,8 +5,9 @@ RUN apt-get update && apt-get install -y \
     git curl zip unzip \
     libzip-dev \
     libxml2-dev \
+    libcurl4-openssl-dev \
     nginx \
-    && docker-php-ext-install zip \
+    && docker-php-ext-install zip dom curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer
