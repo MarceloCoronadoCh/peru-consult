@@ -1,11 +1,11 @@
 FROM php:8.2-cli
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema y extensiones PHP
 RUN apt-get update && apt-get install -y \
     git curl zip unzip \
     libxml2-dev \
     libcurl4-openssl-dev \
-    && docker-php-ext-install dom curl \
+    && docker-php-ext-install dom \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer
