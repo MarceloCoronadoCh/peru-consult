@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+.gitattributes
+.github
+
+# Documentation
+docs/
+*.md
+README.md
+LICENSE
+mkdocs.yml
+
+# Tests
+tests/
+features/
+behat.yml
+phpunit.xml.dist
+phpstan.neon
+.php_cs.dist
+
+# Development
+.sonarcloud.properties
+requirements.txt
+composer.lock
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+tmp/
+temp/
