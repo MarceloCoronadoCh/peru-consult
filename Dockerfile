@@ -23,7 +23,7 @@ WORKDIR /var/www/html
 FROM base AS production
 
 # Copy composer files first for better caching
-COPY composer.json composer.lock ./
+COPY composer.json ./
 
 # Install PHP dependencies (production only, optimized)
 RUN composer install \
