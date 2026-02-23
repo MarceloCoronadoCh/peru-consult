@@ -22,23 +22,17 @@ WORKDIR /var/www/html
 # Production stage
 FROM base AS production
 
-# Copy composer files first for better caching
-COPY composer.json ./
+# Copy application files
+COPY . .
 
 # Install PHP dependencies (production only, optimized)
 RUN composer install \
     --no-dev \
-    --no-scripts \
     --no-interaction \
     --optimize-autoloader \
     --prefer-dist \
+    --verbose \
     && composer clear-cache
-
-# Copy application files
-COPY . .
-
-# Run composer scripts if any
-RUN composer dump-autoload --optimize --no-dev
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/http.d/default.conf
