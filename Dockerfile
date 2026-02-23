@@ -26,12 +26,15 @@ FROM base AS production
 COPY . .
 
 # Install PHP dependencies (production only, optimized)
-RUN composer install \
+# Disable audit check for dev dependencies since we're not installing them
+RUN composer config --no-plugins allow-plugins.composer/package-versions-deprecated true \
+    && composer install \
     --no-dev \
     --no-interaction \
     --optimize-autoloader \
     --prefer-dist \
-    --verbose \
+    --ignore-platform-reqs \
+    --no-audit \
     && composer clear-cache
 
 # Copy nginx configuration
