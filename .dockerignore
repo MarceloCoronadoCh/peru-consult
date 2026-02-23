@@ -22,7 +22,6 @@ phpstan.neon
 # Development
 .sonarcloud.properties
 requirements.txt
-composer.lock
 
 # IDE
 .idea
