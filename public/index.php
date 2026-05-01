@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 require_once __DIR__ . "/../vendor/autoload.php";
 
 use Peru\Jne\{Dni, DniFactory};
-use Peru\Sunat\{Ruc, RucFactory};
+use Peru\Sunat\{Retention, Ruc, RucFactory};
 use Peru\Http\ContextClient;
 
 // Helper function to send JSON response
@@ -107,8 +107,12 @@ try {
             errorResponse("RUC debe tener 11 dígitos", 400);
         }
 
+        $retention = new Retention(dirname(__DIR__) . '/data/agentRet.php');
         $factory = new RucFactory(new ContextClient());
         $ruc = $factory->create();
+        if ($ruc instanceof Ruc) {
+            $ruc->setRetention($retention);
+        }
 
         $company = $ruc->get($rucNumber);
 
@@ -145,6 +149,7 @@ try {
                 "padrones" => $company->padrones ?? null,
                 "fechaBaja" => $company->fechaBaja ?? null,
                 "profesion" => $company->profesion ?? null,
+                "retencion" => $company->retencion ?? null,
             ],
         ]);
     }

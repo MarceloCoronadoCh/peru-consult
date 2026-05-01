@@ -26,6 +26,10 @@ class Ruc implements RucInterface
      * @var RucParser
      */
     private $parser;
+    /**
+     * @var Retention
+     */
+    private $retention;
 
     /**
      * Ruc constructor.
@@ -37,6 +41,16 @@ class Ruc implements RucInterface
     {
         $this->client = $client;
         $this->parser = $parser;
+    }
+
+    /**
+     * Set Retention service.
+     *
+     * @param Retention $retention
+     */
+    public function setRetention(Retention $retention)
+    {
+        $this->retention = $retention;
     }
 
     /**
@@ -64,6 +78,11 @@ class Ruc implements RucInterface
             'modo' => '1',
         ]);
 
-        return $html === false ? null : $this->parser->parse($html);
+        $company = $html === false ? null : $this->parser->parse($html);
+        if ($company !== null && $this->retention !== null) {
+            $company->retencion = $this->retention->get($ruc);
+        }
+
+        return $company;
     }
 }

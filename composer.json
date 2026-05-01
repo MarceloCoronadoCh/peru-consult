@@ -46,6 +46,7 @@
         }
     },
     "scripts": {
+        "sunat:download": "php scripts/download_retention.php",
         "lint": "phpstan analyse",
         "lint:ci": "phpstan analyse --error-format=github"
     }

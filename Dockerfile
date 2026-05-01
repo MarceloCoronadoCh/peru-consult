@@ -11,10 +11,19 @@ RUN apk add --no-cache \
     && docker-php-ext-install \
     dom \
     json \
+    opcache \
     && rm -rf /var/cache/apk/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Configure OPcache for production
+RUN echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
+    echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
+    echo "opcache.max_accelerated_files=4000" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
+    echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
+    echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
+    echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
 # Set working directory
 WORKDIR /var/www/html

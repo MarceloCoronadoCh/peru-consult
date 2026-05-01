@@ -109,4 +109,8 @@ class Company
      * @var string
      */
     public $profesion;
+    /**
+     * @var UserRetention|null
+     */
+    public $retencion;
 }
