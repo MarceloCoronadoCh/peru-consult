@@ -8,10 +8,12 @@ RUN apk add --no-cache \
     curl \
     libxml2-dev \
     libcurl \
+    libzip-dev \
     && docker-php-ext-install \
     dom \
     json \
     opcache \
+    zip \
     && rm -rf /var/cache/apk/*
 
 # Install Composer
