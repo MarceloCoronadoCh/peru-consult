@@ -60,6 +60,7 @@ try {
             "endpoints" => [
                 "GET /dni/{number}" => "Consulta DNI",
                 "GET /ruc/{number}" => "Consulta RUC",
+                "GET /retencion/{number}" => "Consulta Padrón de Retenciones",
                 "GET /health" => "Health check",
             ],
         ]);
@@ -150,6 +151,33 @@ try {
                 "fechaBaja" => $company->fechaBaja ?? null,
                 "profesion" => $company->profesion ?? null,
                 "retencion" => $company->retencion ?? null,
+            ],
+        ]);
+    }
+
+    // Retention Query - GET /retencion/{number}
+    if (count($segments) >= 2 && $segments[0] === "retencion") {
+        $rucNumber = $segments[1];
+
+        // Validate RUC format (11 digits)
+        if (!preg_match('/^\d{11}$/', $rucNumber)) {
+            errorResponse("RUC debe tener 11 dígitos", 400);
+        }
+
+        $retention = new Retention(dirname(__DIR__) . '/data/agentRet.php');
+        $agent = $retention->get($rucNumber);
+
+        jsonResponse([
+            "success" => true,
+            "data" => $agent ? [
+                "ruc" => $agent->ruc,
+                "razonSocial" => $agent->razonSocial,
+                "fechaApartir" => $agent->fechaApartir,
+                "resolucion" => $agent->resolucion,
+                "isRetenedor" => true
+            ] : [
+                "ruc" => $rucNumber,
+                "isRetenedor" => false
             ],
         ]);
     }
