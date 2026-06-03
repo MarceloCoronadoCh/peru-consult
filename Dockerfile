@@ -81,4 +81,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost/health || exit 1
 
 # Start supervisor to manage nginx and php-fpm
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+CMD ["/entrypoint.sh"]
