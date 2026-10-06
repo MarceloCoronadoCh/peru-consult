@@ -1,5 +1,7 @@
 # Multi-stage build for Peru Consult API
-FROM php:7.4-fpm-alpine AS base
+# alpine3.22: OpenSSL 3.5 -> huella TLS moderna requerida por Cloudflare en
+# e-consultaruc.sunat.gob.pe (las versiones viejas reciben 403 "Just a moment")
+FROM php:8.2-fpm-alpine3.22 AS base
 
 # Install system dependencies and PHP extensions
 RUN apk add --no-cache \
@@ -10,8 +12,6 @@ RUN apk add --no-cache \
     libcurl \
     libzip-dev \
     && docker-php-ext-install \
-    dom \
-    json \
     opcache \
     zip \
     && rm -rf /var/cache/apk/*
