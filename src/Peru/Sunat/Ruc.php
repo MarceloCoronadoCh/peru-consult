@@ -30,6 +30,10 @@ class Ruc implements RucInterface
      * @var Retention
      */
     private $retention;
+    /**
+     * @var PadronRuc|null
+     */
+    private $padron;
 
     /**
      * Ruc constructor.
@@ -62,6 +66,25 @@ class Ruc implements RucInterface
      */
     public function get(string $ruc): ?Company
     {
+        $company = $this->getOnline($ruc);
+
+        if ($company === null && $this->padron !== null) {
+            return $this->getOffline($ruc);
+        }
+
+        return $company;
+    }
+
+    /**
+     * Set Padron service (offline fallback via Padrón Reducido RUC).
+     */
+    public function setPadron(PadronRuc $padron)
+    {
+        $this->padron = $padron;
+    }
+
+    private function getOnline(string $ruc): ?Company
+    {
         $this->client->get(Endpoints::CONSULT);
         $htmlRandom = $this->client->post(Endpoints::CONSULT, [
             'accion' => 'consPorRazonSoc',
@@ -80,6 +103,27 @@ class Ruc implements RucInterface
 
         $company = $html === false ? null : $this->parser->parse($html);
         if ($company !== null && $this->retention !== null) {
+            $company->retencion = $this->retention->get($ruc);
+        }
+
+        return $company;
+    }
+
+    private function getOffline(string $ruc): ?Company
+    {
+        $row = $this->padron->get($ruc);
+        if ($row === null) {
+            return null;
+        }
+
+        $company = new Company();
+        $company->ruc = $row['ruc'];
+        $company->razonSocial = $row['razon'];
+        $company->estado = $row['estado'];
+        $company->condicion = $row['condicion'];
+        $company->direccion = $row['direccion'] !== '' ? $row['direccion'] : null;
+        $company->departamento = PadronRuc::departamento($row['ubigeo']);
+        if ($this->retention !== null) {
             $company->retencion = $this->retention->get($ruc);
         }
 
