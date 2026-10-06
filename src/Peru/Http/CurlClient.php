@@ -22,6 +22,14 @@ class CurlClient implements ClientInterface
 
     public function post(string $url, $data, array $headers = [])
     {
+        if (is_array($data)) {
+            // Headers del propio navegador de la traza de SUNAT
+            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
+        $headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+        $headers['Accept-Language'] = 'es-PE,es;q=0.9';
+        $headers['Origin'] = 'https://e-consultaruc.sunat.gob.pe';
+        $headers['Referer'] = 'https://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsruc/jcrS00Alias';
         $raw = is_array($data) ? http_build_query($data) : $data;
 
         $this->setDefaultConfig($url, $headers);
@@ -39,8 +47,16 @@ class CurlClient implements ClientInterface
     {
         curl_setopt($this->ch, CURLOPT_URL, $url);
         curl_setopt($this->ch, CURLOPT_USERAGENT, self::USER_AGENT);
-        curl_setopt($this->ch, CURLOPT_COOKIEJAR, '');        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($this->ch, CURLOPT_FAILONERROR, 1);
+        curl_setopt($this->ch, CURLOPT_COOKIEJAR, '');
+        curl_setopt($this->ch, CURLOPT_COOKIEFILE, '');
+        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($this->ch, CURLOPT_MAXREDIRS, 5);
+        curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($this->ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($this->ch, CURLOPT_ENCODING, '');          // gzip/deflate como un browser
+        curl_setopt($this->ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+        curl_setopt($this->ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->buildHeaders($headers));
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, FALSE);
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, FALSE);
