@@ -19,7 +19,7 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 use Peru\Jne\{Dni, DniFactory};
 use Peru\Sunat\{Retention, Ruc, RucFactory};
-use Peru\Http\CurlClient;
+use Peru\Http\ContextClient;
 
 // Helper function to send JSON response
 function jsonResponse($data, $statusCode = 200)
@@ -75,7 +75,7 @@ try {
             errorResponse("DNI debe tener 8 dígitos", 400);
         }
 
-        $factory = new DniFactory(new CurlClient());
+        $factory = new DniFactory(new ContextClient());
         $dni = $factory->create();
 
         $person = $dni->get($dniNumber);
@@ -109,14 +109,10 @@ try {
         }
 
         $retention = new Retention(dirname(__DIR__) . '/data/agentRet.php');
-        $factory = new RucFactory(new CurlClient());
+        $factory = new RucFactory(new ContextClient());
         $ruc = $factory->create();
         if ($ruc instanceof Ruc) {
             $ruc->setRetention($retention);
-            $padron = new \Peru\Sunat\PadronRuc(dirname(__DIR__) . '/data/padron_ruc.sqlite');
-            if ($padron->available()) {
-                $ruc->setPadron($padron);
-            }
         }
 
         $company = $ruc->get($rucNumber);
@@ -130,7 +126,6 @@ try {
 
         jsonResponse([
             "success" => true,
-            "offline" => $company->nombreComercial === null && $company->tipo === null,
             "data" => [
                 "ruc" => $company->ruc,
                 "razonSocial" => $company->razonSocial,
