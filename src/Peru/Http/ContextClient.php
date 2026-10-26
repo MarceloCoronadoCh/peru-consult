@@ -132,9 +132,14 @@ class ContextClient implements ClientInterface
 
     private function getResponseAndSaveCookies(string $url, $ctx)
     {
-        $response = @file_get_contents($url, false, $ctx);
+        $fp = @fopen($url, 'r', false, $ctx);
+        if ($fp === false) {
+            return false;
+        }
 
-        $headers = http_get_last_response_headers();
+        $response = @stream_get_contents($fp);
+        $headers = $this->responseHeaders($fp);
+        fclose($fp);
 
         if (!empty($headers)) {
             $this->saveCookies($headers);
@@ -143,11 +148,31 @@ class ContextClient implements ClientInterface
         return $response;
     }
 
+    /**
+     * Cabeceras de la ultima respuesta del stream, sin depender de la
+     * variable magica $http_response_header (deprecada en PHP 8.5).
+     */
+    private function responseHeaders($fp): array
+    {
+        if ($fp === false) {
+            return [];
+        }
+
+        $meta = @stream_get_meta_data($fp);
+        $wrapperData = $meta['wrapper_data'] ?? null;
+
+        if ($wrapperData instanceof \Traversable) {
+            $wrapperData = iterator_to_array($wrapperData);
+        }
+
+        return is_array($wrapperData) ? $wrapperData : [];
+    }
+
     private function getResponsePostAndSaveCookies(string $url, $ctx)
     {
         $fp = @fopen($url, 'r', false, $ctx);
         $length = 0;
-        $headers = http_get_last_response_headers();
+        $headers = $this->responseHeaders($fp);
         if (!empty($headers)) {
             foreach ($headers as $hdr) {
                 if (preg_match('/^Content-Length:\s*([^;]+)/', $hdr, $matches)) {

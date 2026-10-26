@@ -16,7 +16,7 @@ composer require giansalex/peru-consult
 [Documentación](https://giansalex.github.io/peru-consult/)
 
 ### Requerimientos
-- PHP 8.4 o superior.
+- PHP 8.1 o superior.
 - Extensión `curl`
 
 ### Servicios Disponibles
