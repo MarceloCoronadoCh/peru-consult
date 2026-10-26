@@ -9,6 +9,8 @@ use React\Promise\PromiseInterface;
 
 class Dni
 {
+    const TIPO_MAYORES = '1';
+    const TIPO_MENORES = '2';
     /**
      * @var ClientInterface
      */
@@ -50,10 +52,35 @@ class Dni
      */
     public function get(string $dni): PromiseInterface
     {
-        $params = '{"tipDocu": "1", "numDocu": "'.$dni.'", "tipPers":"1"}';
+        return $this->consult($dni, self::TIPO_MAYORES)
+            ->then(function ($person) use ($dni) {
+                if ($person !== null) {
+                    return $person;
+                }
+
+                return $this->consult($dni, self::TIPO_MENORES);
+            });
+    }
+
+    /**
+     * Consulta el DNI contra SUNAT para un tipo de persona.
+     *
+     * @param string $dni
+     * @param string $tipPers 1 mayores, 2 menores de edad
+     *
+     * @return PromiseInterface
+     */
+    private function consult(string $dni, string $tipPers): PromiseInterface
+    {
+        $payload = (string) json_encode([
+            'tipDocu' => '1',
+            'numDocu' => $dni,
+            'tipPers' => $tipPers,
+            'token'   => bin2hex(random_bytes(26)),
+        ]);
 
         return $this->client
-            ->postAsync(Endpoints::CONSULT, $params, ['Content-Type' => 'application/json'])
+            ->postAsync(Endpoints::CONSULT, $payload, ['Content-Type' => 'application/json'])
             ->then(function ($json) use ($dni) {
                 if ($json === false || !($result = json_decode($json)) || !isset($result->nombreSoli)) {
                     return null;

@@ -1,10 +1,9 @@
 <?php
 
 use Behat\Behat\Context\Context;
+use Peru\Dni\DniFactory;
 use Peru\Http\CurlClient;
 use Peru\Http\EmptyResponseDecorator;
-use Peru\Jne\Dni;
-use Peru\Jne\DniParser;
 use Peru\Reniec\Person;
 use Peru\Sunat\Company;
 use Peru\Sunat\Parser\HtmlRecaptchaParser;
@@ -54,8 +53,7 @@ class FeatureContext implements Context
         $client = new EmptyResponseDecorator(new CurlClient());
         switch (strlen($this->document)) {
             case 8:
-                $cs = new Dni($client, new DniParser());
-                $this->result = $cs->get($this->document);
+                $this->result = (new DniFactory(new CurlClient()))->create()->get($this->document);
                 break;
             case 11:
                 $cs = new Ruc($client, new RucParser(new HtmlRecaptchaParser()));

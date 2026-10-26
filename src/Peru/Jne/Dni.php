@@ -16,6 +16,8 @@ use Peru\Services\DniInterface;
  */
 class Dni implements DniInterface
 {
+    const TIPO_MAYORES = '1';
+    const TIPO_MENORES = '2';
     /**
      * @var ClientInterface
      */
@@ -56,13 +58,39 @@ class Dni implements DniInterface
      */
     public function get(string $dni): ?Person
     {
-        $params = '{"tipDocu": "1", "numDocu": "'.$dni.'", "tipPers":"1"}';
-        $json = $this->client->post(Endpoints::CONSULT, $params, ['Content-Type' => 'application/json']);
+        foreach ([self::TIPO_MAYORES, self::TIPO_MENORES] as $tipPers) {
+            $json = $this->client->post(
+                Endpoints::CONSULT,
+                $this->buildPayload($dni, $tipPers),
+                ['Content-Type' => 'application/json']
+            );
 
-        if ($json === false || !($result = json_decode($json)) || !isset($result->nombreSoli)) {
-            return null;
+            if ($json === false || !($result = json_decode($json)) || !isset($result->nombreSoli)) {
+                continue;
+            }
+
+            return $this->parser->parse($dni, $result);
         }
 
-        return $this->parser->parse($dni, $result);
+        return null;
+    }
+
+    /**
+     * Payload de consulta. SUNAT exige el campo "token" no vacío
+     * (no valida su valor), se genera uno aleatorio por consulta.
+     *
+     * @param string $dni
+     * @param string $tipPers 1 mayores, 2 menores de edad
+     *
+     * @return string
+     */
+    private function buildPayload(string $dni, string $tipPers): string
+    {
+        return (string) json_encode([
+            'tipDocu' => '1',
+            'numDocu' => $dni,
+            'tipPers' => $tipPers,
+            'token'   => bin2hex(random_bytes(26)),
+        ]);
     }
 }

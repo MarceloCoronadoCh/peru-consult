@@ -1,6 +1,8 @@
 # DNI
 Consulta de DNI.
-> Fuente: **JNE**.
+> Fuente: **SUNAT** con *Fallback* automático a **eldni.com**.
+
+El endpoint `registro/solicitante` de SUNAT exige el campo `token` no vacío (se genera uno aleatorio por consulta) y no responde para todos los DNIs; si no hay datos, la consulta automáticamente prueba con elDni.
 
 ## Ejemplo
 
@@ -11,6 +13,7 @@ require 'vendor/autoload.php';
 
 $dni = '46658592';
 
+// La consulta SUNAT -> elDni en cascada (Fallback)
 $factory = new DniFactory();
 $cs = $factory->create();
 
