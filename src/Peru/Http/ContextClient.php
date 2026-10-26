@@ -134,8 +134,10 @@ class ContextClient implements ClientInterface
     {
         $response = @file_get_contents($url, false, $ctx);
 
-        if (isset($http_response_header)) {
-            $this->saveCookies($http_response_header);
+        $headers = http_get_last_response_headers();
+
+        if (!empty($headers)) {
+            $this->saveCookies($headers);
         }
 
         return $response;
@@ -145,8 +147,9 @@ class ContextClient implements ClientInterface
     {
         $fp = @fopen($url, 'r', false, $ctx);
         $length = 0;
-        if (isset($http_response_header)) {
-            foreach ($http_response_header as $hdr) {
+        $headers = http_get_last_response_headers();
+        if (!empty($headers)) {
+            foreach ($headers as $hdr) {
                 if (preg_match('/^Content-Length:\s*([^;]+)/', $hdr, $matches)) {
                     $length = (int)$matches[1];
                     break;
@@ -168,8 +171,8 @@ class ContextClient implements ClientInterface
         }
         fclose($fp);
 
-        if (isset($http_response_header)) {
-            $this->saveCookies($http_response_header);
+        if (!empty($headers)) {
+            $this->saveCookies($headers);
         }
 
         return $response;

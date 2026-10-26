@@ -1,9 +1,10 @@
 # Multi-stage build for Peru Consult API
-# alpine3.22: OpenSSL 3.5 -> huella TLS moderna requerida por Cloudflare en
+# alpine3.24: OpenSSL 3.5.9 -> huella TLS moderna requerida por Cloudflare en
 # e-consultaruc.sunat.gob.pe (las versiones viejas reciben 403 "Just a moment")
-FROM php:8.2-fpm-alpine3.22 AS base
+FROM php:8.5-fpm-alpine3.24 AS base
 
 # Install system dependencies and PHP extensions
+# NOTE 8.5: OPcache ya esta integrado en el nucleo de PHP 8.5; solo compila zip
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -12,20 +13,26 @@ RUN apk add --no-cache \
     libcurl \
     libzip-dev \
     && docker-php-ext-install \
-    opcache \
     zip \
     && rm -rf /var/cache/apk/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Configure OPcache for production
+# Configure OPcache for production (OPcache ya esta compilado en PHP 8.5)
+# Production hygiene: los avisos PHP nunca van al output (corrompen el JSON)
 RUN echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
     echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
     echo "opcache.max_accelerated_files=4000" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
     echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
     echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini && \
     echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+
+# PHP: silenciar salida de errores en produccion; registrarlos en stderr
+RUN echo "display_errors=Off" > /usr/local/etc/php/conf.d/peru-prod.ini && \
+    echo "display_startup_errors=Off" >> /usr/local/etc/php/conf.d/peru-prod.ini && \
+    echo "log_errors=On" >> /usr/local/etc/php/conf.d/peru-prod.ini && \
+    echo "error_log=/proc/self/fd/2" >> /usr/local/etc/php/conf.d/peru-prod.ini
 
 # Set working directory
 WORKDIR /var/www/html

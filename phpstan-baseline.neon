@@ -1,0 +1,73 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Class Peru\\Http\\Async\\HttpClient extends @final class React\\Http\\Browser\.$#'
+			identifier: class.extendsFinalByPhpDoc
+			count: 1
+			path: src/Peru/Http/Async/HttpClient.php
+
+		-
+			message: '#^Property Peru\\Http\\Async\\HttpClient\:\:\$cookies \(array\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: src/Peru/Http/Async/HttpClient.php
+
+		-
+			message: '#^Property Peru\\Http\\ContextClient\:\:\$cookies \(array\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: src/Peru/Http/ContextClient.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: src/Peru/Http/ContextClient.php
+
+		-
+			message: '#^Parameter \#3 \$value of function curl_setopt expects 0\|2, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Peru/Http/CurlClient.php
+
+		-
+			message: '#^Parameter \#3 \$value of function curl_setopt expects bool, int given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Peru/Http/CurlClient.php
+
+		-
+			message: '#^Parameter \#3 \$value of function curl_setopt expects non\-empty\-string, '''' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Peru/Http/CurlClient.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(\$item DOMNode\)\: Unexpected token "\$item", expected type at offset 9 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Peru/Sunat/HtmlParser.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(\$item2 DOMNode\)\: Unexpected token "\$item2", expected type at offset 9 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Peru/Sunat/HtmlParser.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(\$opt DOMNode\)\: Unexpected token "\$opt", expected type at offset 9 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Peru/Sunat/HtmlParser.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(\$item DOMNode\)\: Unexpected token "\$item", expected type at offset 9 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Peru/Sunat/Parser/HtmlRecaptchaParser.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between null and string will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Peru/Sunat/Parser/XpathLoader.php
