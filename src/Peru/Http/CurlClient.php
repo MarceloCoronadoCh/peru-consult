@@ -23,13 +23,18 @@ class CurlClient implements ClientInterface
     public function post(string $url, $data, array $headers = [])
     {
         if (is_array($data)) {
-            // Headers del propio navegador de la traza de SUNAT
-            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+            // Content-Type del propio navegador de la traza de SUNAT
+            // (los headers enviados por el consumidor tienen prioridad)
+            $headers += ['Content-Type' => 'application/x-www-form-urlencoded'];
         }
-        $headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
-        $headers['Accept-Language'] = 'es-PE,es;q=0.9';
-        $headers['Origin'] = 'https://e-consultaruc.sunat.gob.pe';
-        $headers['Referer'] = 'https://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsruc/jcrS00Alias';
+        // Headers del propio navegador de la traza de SUNAT
+        // (los headers enviados por el consumidor tienen prioridad)
+        $headers += [
+            'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language' => 'es-PE,es;q=0.9',
+            'Origin'          => 'https://e-consultaruc.sunat.gob.pe',
+            'Referer'         => 'https://e-consultaruc.sunat.gob.pe/cl-ti-itmrconsruc/jcrS00Alias',
+        ];
         $raw = is_array($data) ? http_build_query($data) : $data;
 
         $this->setDefaultConfig($url, $headers);
