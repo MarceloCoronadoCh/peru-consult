@@ -22,7 +22,7 @@ class HttpClientTest extends TestCase
      */
     private $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->loop = Factory::create();
         $this->client = new HttpClient($this->loop);
@@ -41,11 +41,11 @@ class HttpClientTest extends TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
      * @throws \Exception
      */
     public function testGetWithError()
     {
+        $this->expectException(\RuntimeException::class);
         await($this->client->getAsync('http://http323bin.org'), $this->loop);
     }
 
@@ -66,15 +66,15 @@ class HttpClientTest extends TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
      * @throws \Exception
      */
     public function testPostWithError()
     {
+        $this->expectException(\RuntimeException::class);
         await($this->client->postAsync('https://httpbin323.org/post', ''), $this->loop);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->loop->run();
     }

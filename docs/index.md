@@ -12,7 +12,7 @@ Vía composer desde [packagist.org](https://packagist.org/packages/giansalex/per
 composer require giansalex/peru-consult
 ```
 ### Requerimientos
-- PHP 7.1 o superior.
+- PHP 8.1 o superior.
 - Extensión `curl`.
 
 ### Servicios

@@ -14,6 +14,7 @@ use DateTime;
 use Exception;
 use Peru\Http\{CurlClient, EmptyResponseDecorator};
 use Peru\Sunat\{Parser\HtmlRecaptchaParser, Ruc, RucParser};
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,7 +28,7 @@ class RucTest extends TestCase
      */
     private $cs;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->cs = new Ruc(
             new ClientStubDecorator(new EmptyResponseDecorator(new CurlClient())),
@@ -35,11 +36,10 @@ class RucTest extends TestCase
     }
 
     /**
-     * @dataProvider rucProviders
-     *
      * @param string $ruc
      * @throws Exception
      */
+    #[DataProvider('rucProviders')]
     public function testGetRuc($ruc)
     {
         $company = $this->cs->get($ruc);
@@ -83,7 +83,7 @@ class RucTest extends TestCase
         $this->assertNull($company);
     }
 
-    public function rucProviders()
+    public static function rucProviders()
     {
         return [
             ['20440374248'], // 20550263948LA LIBERTAD

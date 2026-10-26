@@ -132,21 +132,49 @@ class ContextClient implements ClientInterface
 
     private function getResponseAndSaveCookies(string $url, $ctx)
     {
-        $response = @file_get_contents($url, false, $ctx);
+        $fp = @fopen($url, 'r', false, $ctx);
+        if ($fp === false) {
+            return false;
+        }
 
-        if (isset($http_response_header)) {
-            $this->saveCookies($http_response_header);
+        $response = @stream_get_contents($fp);
+        $headers = $this->responseHeaders($fp);
+        fclose($fp);
+
+        if (!empty($headers)) {
+            $this->saveCookies($headers);
         }
 
         return $response;
+    }
+
+    /**
+     * Cabeceras de la ultima respuesta del stream, sin depender de la
+     * variable magica $http_response_header (deprecada en PHP 8.5).
+     */
+    private function responseHeaders($fp): array
+    {
+        if ($fp === false) {
+            return [];
+        }
+
+        $meta = @stream_get_meta_data($fp);
+        $wrapperData = $meta['wrapper_data'] ?? null;
+
+        if ($wrapperData instanceof \Traversable) {
+            $wrapperData = iterator_to_array($wrapperData);
+        }
+
+        return is_array($wrapperData) ? $wrapperData : [];
     }
 
     private function getResponsePostAndSaveCookies(string $url, $ctx)
     {
         $fp = @fopen($url, 'r', false, $ctx);
         $length = 0;
-        if (isset($http_response_header)) {
-            foreach ($http_response_header as $hdr) {
+        $headers = $this->responseHeaders($fp);
+        if (!empty($headers)) {
+            foreach ($headers as $hdr) {
                 if (preg_match('/^Content-Length:\s*([^;]+)/', $hdr, $matches)) {
                     $length = (int)$matches[1];
                     break;
@@ -168,8 +196,8 @@ class ContextClient implements ClientInterface
         }
         fclose($fp);
 
-        if (isset($http_response_header)) {
-            $this->saveCookies($http_response_header);
+        if (!empty($headers)) {
+            $this->saveCookies($headers);
         }
 
         return $response;

@@ -43,11 +43,6 @@ class CurlClient implements ClientInterface
         return curl_exec($this->ch);
     }
 
-    public function __destruct()
-    {
-        curl_close($this->ch);
-    }
-
     private function setDefaultConfig(string $url, array $headers): void
     {
         curl_setopt($this->ch, CURLOPT_URL, $url);
